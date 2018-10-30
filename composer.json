@@ -1,0 +1,24 @@
+{
+    "name": "fireworkweb/smpte",
+    "description": "",
+    "keywords": [],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Firework Web & Mobile",
+            "email": "contact@fireworkweb.com"
+        }
+    ],
+    "type": "project",
+    "require": {
+        "php": ">=7.0.32"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^6"
+    },
+    "autoload": {
+        "psr-4": {
+            "FireWorkWeb\\SMPTE\\": "src/"
+        }
+    }
+}
