@@ -1,6 +1,6 @@
 <?php
 
-namespace FireWorkWeb\SMPTE;
+namespace FireworkWeb\SMPTE;
 
 /**
  * Timecode class representation
@@ -16,17 +16,6 @@ class Timecode
      * @var bool
      */
     const DEFAULT_DROPFRAME = false;
-
-    /**
-     * @var array
-     */
-    const SUPPORTED_FRAMERATES = [
-        23.976,
-        24,
-        25,
-        29.97,
-        30,
-    ];
 
     /**
      * @var int
@@ -76,9 +65,12 @@ class Timecode
      * @param bool $dropFrame
      * @return void
      */
-    public function __construct($time, float $frameRate = self::DEFAULT_FRAMERATE, bool $dropFrame = self::DEFAULT_DROPFRAME)
-    {
-        if (! self::isValidTimeCode($time, $frameRate, $dropFrame)) {
+    public function __construct(
+        $time,
+        float $frameRate = self::DEFAULT_FRAMERATE,
+        bool $dropFrame = self::DEFAULT_DROPFRAME
+    ) {
+        if (! Validations::isValidTimeCode($time, $frameRate, $dropFrame)) {
             throw new \InvalidArgumentException('Invalid timecode');
         }
 
@@ -89,107 +81,13 @@ class Timecode
     }
 
     /**
-     * Determine if is valid timecode
+     * Convert the Timecode to its string representation.
      *
-     * @param int|string|DateTime $time
-     * @param float $frameRate
-     * @param bool $dropFrame
-     * @return self
+     * @return string
      */
-    public static function isValidTimeCode($time, float $frameRate, bool $dropFrame)
+    public function __toString() : string
     {
-        if (! self::isFrameRateSupported($frameRate, $dropFrame)) {
-            throw new \InvalidArgumentException('Frame rate not supported');
-        }
-
-        return self::isValidInteger($time) || self::isValidDate($time) || self::isValidString($time, $frameRate, $dropFrame);
-    }
-
-    /**
-     * Determine if timecode of the type integer is valid
-     *
-     * @param int $value
-     * @return bool
-     */
-    public static function isValidInteger($value) : bool
-    {
-        if (! is_integer($value)) {
-            return false;
-        }
-
-        if ($value < 0) {
-            throw new \InvalidArgumentException('Negative frames not supported');
-        }
-
-        return true;
-    }
-
-    /**
-     * Determine if timecode is intance of DateTime
-     *
-     * @param DateTime $value
-     * @return bool
-     */
-    public static function isValidDate($value) : bool
-    {
-        return $value instanceof \DateTime;
-    }
-
-    /**
-     * Determine if timecode of the type string is valid
-     *
-     * @param string $value
-     * @param float $frameRate
-     * @param bool $dropFrame
-     * @return bool
-     */
-    public static function isValidString($value, float $frameRate, bool $dropFrame) : bool
-    {
-        if (! is_string($value)) {
-            return false;
-        }
-
-        if (! $dropFrame && strpos($value, ';') !== false) {
-            return false;
-        }
-
-        if ($dropFrame && $value[8] !== ';') {
-            return false;
-        }
-
-        // hh:mm:ss:ff
-        $timeCodeFormat = '/^(?:[0-1][0-9]|2[0-3])(:|;)(?:[0-5][0-9])\1(?:[0-5][0-9])(:|;)(?:[0-2][0-9])$/';
-        if (! preg_match($timeCodeFormat, $value)) {
-            return false;
-        }
-
-        $parts = preg_split('/(:|;)/', $value);
-
-        if ($parts[3] >= round($frameRate)) {
-            return false;
-        }
-
-        if ($dropFrame && ($parts[1] % 10 !== 0 && $parts[3] < 2 && $parts[2] === 0)) {
-            return false;
-        }
-
-        return true;
-    }
-
-    /**
-     * Determine if frame rate is supported
-     *
-     * @param float $frameRate
-     * @param bool $dropFrame
-     * @return bool
-     */
-    public static function isFrameRateSupported(float $frameRate, bool $dropFrame = self::DEFAULT_DROPFRAME) : bool
-    {
-        if ($frameRate !== 29.97 && $dropFrame) {
-            throw new \InvalidArgumentException('Only 29.97 frame rate has drop frame support.');
-        }
-
-        return in_array($frameRate, self::SUPPORTED_FRAMERATES);
+        return $this->toString();
     }
 
     /**
@@ -200,22 +98,25 @@ class Timecode
      * @param bool $dropFrame
      * @return int
      */
-    public static function frameCountFromTimecode($time, float $frameRate = self::DEFAULT_FRAMERATE, bool $dropFrame = self::DEFAULT_DROPFRAME) : int
-    {
-        if (! self::isValidString($time, $frameRate, $dropFrame)) {
+    public static function frameCountFromTimecode(
+        $time,
+        float $frameRate = self::DEFAULT_FRAMERATE,
+        bool $dropFrame = self::DEFAULT_DROPFRAME
+    ) : int {
+        if (! Validations::isValidString($time, $frameRate, $dropFrame)) {
             throw new \InvalidArgumentException('Invalid string format');
         }
 
-        $parts = preg_split('/(:|;)/', $time);
+        list($hours, $minutes, $seconds, $frames) = preg_split('/(:|;)/', $time);
 
         $roundFrameRate = round($frameRate);
-        $frameCount = ($roundFrameRate * 60 * 60 * $parts[0])
-            + ($roundFrameRate * 60 * $parts[1])
-            + ($roundFrameRate * $parts[2])
-            + $parts[3];
+        $frameCount = ($roundFrameRate * 60 * 60 * $hours)
+            + ($roundFrameRate * 60 * $minutes)
+            + ($roundFrameRate * $seconds)
+            + $frames;
 
         if ($dropFrame) {
-            $totalMinutes = (60 * $parts[0]) + $parts[1];
+            $totalMinutes = (60 * $hours) + $minutes;
 
             return intval($frameCount - (2 * ($totalMinutes - floor($totalMinutes / 10))));
         }
@@ -256,9 +157,9 @@ class Timecode
      * Create a frame count based on your time type
      *
      * @param int|string|DateTime $time
-     * @return void
+     * @return self
      */
-    public function generateFrameCount($time)
+    public function generateFrameCount($time) : self
     {
         $frameCount = null;
 
@@ -273,13 +174,13 @@ class Timecode
             $frameCount = intval(self::frameCountFromTimecode($time, $this->frameRate, $this->dropFrame));
         }
 
-        if ($frameCount !== null) {
-            $this->setFrameCount($frameCount);
-
-            return;
+        if ($frameCount === null) {
+            throw new \InvalidArgumentException('Frame count can not be generated. Invalid timecode.');
         }
 
-        throw new \InvalidArgumentException('Frame count can not be generated. Invalid timecode.');
+        $this->setFrameCount($frameCount);
+
+        return $this;
     }
 
     /**
@@ -310,16 +211,6 @@ class Timecode
     }
 
     /**
-     * Update the frame count based on the current time code
-     *
-     * @return void
-     */
-    public function updateFramecount() : void
-    {
-        $this->frameCount = self::frameCountFromTimecode($this->toString(), $this->frameRate, $this->dropFrame);
-    }
-
-    /**
      * Adds a timecode or a frame count to the current SMPTE object
      *
      * @param int|string|DateTime $time
@@ -328,10 +219,7 @@ class Timecode
      */
     public function add($time, int $operation = 1) : self
     {
-        $operation = $operation < 0
-            ? -1
-            : 1;
-
+        $operation = $operation < 0 ? -1 : 1;
         $timeCode = new self($time, $this->getFrameRate(), $this->getDropFrame());
         $frameCount = $this->getFrameCount() + ($timeCode->getFrameCount() * $operation);
 
@@ -385,7 +273,7 @@ class Timecode
      * @param int $minuts
      * @return void
      */
-    public function setMinuts(int $minuts) : void
+    public function setMinutes(int $minuts) : void
     {
         if ($minuts < 0 || $minuts > 59) {
             throw new \InvalidArgumentException('The minuts must be between 0 and 59');
@@ -454,9 +342,9 @@ class Timecode
      * Update time code
      *
      * @param int $frameCount
-     * @return void
+     * @return self
      */
-    public function setFrameCount(int $frameCount)
+    public function setFrameCount(int $frameCount) : self
     {
         if ($frameCount < 0) {
             throw new \InvalidArgumentException('Frame count can not be negative');
@@ -471,5 +359,17 @@ class Timecode
         $this->minutes = (int) (floor($recalculatedFrameCount / ($frameRate * 60)) % 60);
         $this->seconds = (int) (floor($recalculatedFrameCount / $frameRate) % 60);
         $this->frames = (int) ($recalculatedFrameCount % $frameRate);
+
+        return $this;
+    }
+
+    /**
+     * Update the frame count based on the current time code
+     *
+     * @return void
+     */
+    private function updateFramecount() : void
+    {
+        $this->frameCount = self::frameCountFromTimecode($this->toString(), $this->frameRate, $this->dropFrame);
     }
 }
