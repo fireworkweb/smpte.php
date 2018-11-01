@@ -5,8 +5,8 @@ namespace FireworkWeb\SMPTE;
 /**
  * Validations class representation
  */
- class Validations
- {
+class Validations
+{
     /**
      * @var array
      */
@@ -123,4 +123,4 @@ namespace FireworkWeb\SMPTE;
 
         return in_array($frameRate, self::SUPPORTED_FRAMERATES);
     }
- }
+}

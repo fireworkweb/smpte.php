@@ -4,6 +4,16 @@ namespace FireworkWeb\Tests;
 
 trait TimecodeProvider
 {
+    public function defaultFrameRateProvider()
+    {
+        return [
+            [23.976],
+            [25],
+            [29.97],
+            [30],
+        ];
+    }
+
     public function validInstancesProvider()
     {
         return [

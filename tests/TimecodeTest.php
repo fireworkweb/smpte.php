@@ -11,6 +11,37 @@ class TimecodeTest extends TestCase
     use TimecodeProvider;
 
     /**
+     * @dataProvider defaultFrameRateProvider
+     */
+    public function testDefaultFrameRate($frameRate)
+    {
+        $timecode = new Timecode(360);
+
+        Timecode::setDefaultFrameRate($frameRate);
+
+        $customTimecode = new Timecode(420);
+
+        $this->assertEquals(24, $timecode->getFrameRate());
+        $this->assertEquals($frameRate, $customTimecode->getFrameRate());
+
+        Timecode::setDefaultFrameRate(24);
+    }
+
+    public function testDefaultDropFrame()
+    {
+        $timecode = new Timecode(360);
+
+        Timecode::setDefaultDropFrame(true);
+
+        $customTimecode = new Timecode(420, 29.97);
+
+        $this->assertEquals(false, $timecode->getDropFrame());
+        $this->assertEquals(true, $customTimecode->getDropFrame());
+
+        Timecode::setDefaultDropFrame(false);
+    }
+
+    /**
      * @dataProvider frameRateSupportedProvider
      */
     public function testFrameRateSupported($frameRate, $dropFrame)
