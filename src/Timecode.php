@@ -107,21 +107,21 @@ class Timecode
             throw new \InvalidArgumentException('Invalid string format');
         }
 
-        list($hours, $minutes, $seconds, $frames) = preg_split('/(:|;)/', $time);
+        $times = preg_split('/(:|;)/', $time);
+        list($hours, $minutes, $seconds, $frames) = array_map(function ($time) {
+            return (int) $time;
+        }, $times);
 
         $roundFrameRate = round($frameRate);
-        $frameCount = ($roundFrameRate * 60 * 60 * $hours)
-            + ($roundFrameRate * 60 * $minutes)
-            + ($roundFrameRate * $seconds)
-            + $frames;
+        $frameCount = self::calculateFrameCount($roundFrameRate, $hours, $minutes, $seconds, $frames);
 
         if ($dropFrame) {
             $totalMinutes = (60 * $hours) + $minutes;
 
-            return intval($frameCount - (2 * ($totalMinutes - floor($totalMinutes / 10))));
+            return (int) ($frameCount - (2 * ($totalMinutes - floor($totalMinutes / 10))));
         }
 
-        return intval($frameCount);
+        return (int) $frameCount;
     }
 
     /**
@@ -139,6 +139,29 @@ class Timecode
         }
 
         return new self(intval($seconds * $frameRate), $frameRate);
+    }
+
+    /**
+     * Calculate frame count
+     *
+     * @param float $frameRate
+     * @param int $hours
+     * @param int $minutes
+     * @param int $seconds
+     * @param int $frames
+     * @return float
+     */
+    public static function calculateFrameCount(
+        float $frameRate,
+        int $hours,
+        int $minutes,
+        int $seconds,
+        int $frames
+    ) : float {
+        return ($frameRate * 60 * 60 * $hours)
+            + ($frameRate * 60 * $minutes)
+            + ($frameRate * $seconds)
+            + $frames;
     }
 
     /**
@@ -164,14 +187,14 @@ class Timecode
         $frameCount = null;
 
         if (is_integer($time)) {
-            $frameCount = intval($time);
-        } else if ($time instanceof \DateTime) {
+            $frameCount = (int) $time;
+        } elseif ($time instanceof \DateTime) {
             $midnight = clone $time;
             $midnight->setTime(0, 0);
 
-            $frameCount = intval(($time->getTimestamp() - $midnight->getTimestamp()) * $this->frameRate);
-        } else if (is_string($time)) {
-            $frameCount = intval(self::frameCountFromTimecode($time, $this->frameRate, $this->dropFrame));
+            $frameCount = (int) (($time->getTimestamp() - $midnight->getTimestamp()) * $this->frameRate);
+        } elseif (is_string($time)) {
+            $frameCount = (int) self::frameCountFromTimecode($time, $this->frameRate, $this->dropFrame);
         }
 
         if ($frameCount === null) {

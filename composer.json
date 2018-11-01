@@ -18,7 +18,11 @@
     },
     "autoload": {
         "psr-4": {
-            "FireworkWeb\\SMPTE\\": "src/",
+            "FireworkWeb\\SMPTE\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
             "FireworkWeb\\Tests\\": "tests/"
         }
     }
