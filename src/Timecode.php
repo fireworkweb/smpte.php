@@ -430,7 +430,7 @@ class Timecode
      *
      * @return void
      */
-    private function updateFramecount() : void
+    private function updateFramecount()
     {
         $this->frameCount = self::frameCountFromTimecode($this->toString(), $this->frameRate, $this->dropFrame);
     }
