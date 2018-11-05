@@ -12,7 +12,7 @@ before_script:
   - travis_retry composer update ${COMPOSER_FLAGS} --no-interaction --prefer-source
 
 script:
-  - phpunit --coverage-clover=coverage.xml --bootstrap vendor/autoload.php tests/TimecodeTest 
+  - phpunit --coverage-clover=coverage.xml
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
