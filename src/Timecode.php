@@ -65,7 +65,7 @@ class Timecode
      * @param bool $dropFrame
      * @return void
      */
-    public function __construct($time, $frameRate = null, $dropFrame = null)
+    public function __construct($time = 0, $frameRate = null, $dropFrame = null)
     {
         $this->frameRate = is_null($frameRate) ? self::$defaultFrameRate : $frameRate;
         $this->dropFrame = is_null($dropFrame) ? self::$defaultDropFrame : $dropFrame;
@@ -124,17 +124,23 @@ class Timecode
      *
      * @param int $seconds
      * @param float $frameRate
+     * @param bool $dropFrame
      * @return self
      */
-    public static function fromSeconds($seconds, $frameRate = null) : self
+    public static function fromSeconds($seconds, $frameRate = null, $dropFrame = null) : self
     {
         $frameRate = is_null($frameRate) ? self::$defaultFrameRate : $frameRate;
+        $dropFrame = is_null($dropFrame) ? self::$defaultDropFrame : $dropFrame;
 
         if (! is_numeric($seconds)) {
             throw new \InvalidArgumentException('First argument must be a number');
         }
 
-        return new self(intval($seconds * $frameRate), $frameRate);
+        if (! Validations::isFrameRateSupported($frameRate, $dropFrame)) {
+            throw new \InvalidArgumentException('Frame Rate not supported');
+        }
+
+        return new self(intval($seconds * $frameRate), $frameRate, $dropFrame);
     }
 
     /**
@@ -346,6 +352,28 @@ class Timecode
     public function getFrames() : int
     {
         return $this->frames;
+    }
+
+    /**
+     * @param int $frames
+     * @return void
+     */
+    public function setFrames(int $frames) : void
+    {
+        if ($frames < 0 || $frames > round($this->frameRate)) {
+            throw new \InvalidArgumentException('The frames must be between 0 and the framerate');
+        }
+
+        if ($this->dropFrame
+            && $this->minutes % 10 !== 0
+            && $this->seconds === 0
+            && $frames < 2
+        ) {
+            throw new \InvalidArgumentException('The frames must not be less than 2 when dropframe and minutes 10');
+        }
+
+        $this->frames = $frames;
+        $this->updateFramecount();
     }
 
     /**
