@@ -1,0 +1,29 @@
+{
+    "name": "fireworkweb/smpte",
+    "description": "Easily deal with Timecode SMPTE format in PHP",
+    "keywords": ["timecode", "smpte", "subtitle"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Firework Web & Mobile",
+            "email": "contact@fireworkweb.com"
+        }
+    ],
+    "type": "project",
+    "require": {
+        "php": "^7.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^6"
+    },
+    "autoload": {
+        "psr-4": {
+            "FireworkWeb\\SMPTE\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "FireworkWeb\\Tests\\": "tests/"
+        }
+    }
+}
