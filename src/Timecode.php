@@ -105,9 +105,7 @@ class Timecode
         }
 
         $times = preg_split('/(:|;)/', $time);
-        list($hours, $minutes, $seconds, $frames) = array_map(function ($time) {
-            return (int) $time;
-        }, $times);
+        list($hours, $minutes, $seconds, $frames) = array_map('intval', $times);
 
         $roundFrameRate = round($frameRate);
         $frameCount = self::calculateFrameCount($roundFrameRate, $hours, $minutes, $seconds, $frames);
@@ -126,7 +124,6 @@ class Timecode
      *
      * @param int $seconds
      * @param float $frameRate
-     * @param bool $dropFrame
      * @return self
      */
     public static function fromSeconds($seconds, $frameRate = null) : self
@@ -212,7 +209,7 @@ class Timecode
             $frameCount = (int) self::frameCountFromTimecode($time, $this->frameRate, $this->dropFrame);
         }
 
-        if ($frameCount === null) {
+        if (is_null($frameCount)) {
             throw new \InvalidArgumentException('Frame count can not be generated. Invalid timecode.');
         }
 
