@@ -8,11 +8,6 @@ namespace FireworkWeb\SMPTE;
 class Timecode
 {
     /**
-     * @var int
-     */
-    const DROP_FRAME_CONCEPT = 17982;
-
-    /**
      * @var float
      */
     private $frameRate;
@@ -65,7 +60,7 @@ class Timecode
      * @param bool $dropFrame
      * @return void
      */
-    public function __construct($time, $frameRate = null, $dropFrame = null)
+    public function __construct($time = 0, $frameRate = null, $dropFrame = null)
     {
         $this->frameRate = is_null($frameRate) ? self::$defaultFrameRate : $frameRate;
         $this->dropFrame = is_null($dropFrame) ? self::$defaultDropFrame : $dropFrame;
@@ -124,17 +119,23 @@ class Timecode
      *
      * @param int $seconds
      * @param float $frameRate
+     * @param bool $dropFrame
      * @return self
      */
-    public static function fromSeconds($seconds, $frameRate = null) : self
+    public static function fromSeconds($seconds, $frameRate = null, $dropFrame = null) : self
     {
         $frameRate = is_null($frameRate) ? self::$defaultFrameRate : $frameRate;
+        $dropFrame = is_null($dropFrame) ? self::$defaultDropFrame : $dropFrame;
 
         if (! is_numeric($seconds)) {
             throw new \InvalidArgumentException('First argument must be a number');
         }
 
-        return new self(intval($seconds * $frameRate), $frameRate);
+        if (! Validations::isFrameRateSupported($frameRate, $dropFrame)) {
+            throw new \InvalidArgumentException('Frame Rate not supported');
+        }
+
+        return new self(intval($seconds * $frameRate), $frameRate, $dropFrame);
     }
 
     /**
@@ -194,7 +195,7 @@ class Timecode
      * @param int|string|DateTime $time
      * @return self
      */
-    public function generateFrameCount($time) : self
+    private function generateFrameCount($time) : self
     {
         $frameCount = null;
 
@@ -209,10 +210,6 @@ class Timecode
             $frameCount = (int) self::frameCountFromTimecode($time, $this->frameRate, $this->dropFrame);
         }
 
-        if (is_null($frameCount)) {
-            throw new \InvalidArgumentException('Frame count can not be generated. Invalid timecode.');
-        }
-
         $this->setFrameCount($frameCount);
 
         return $this;
@@ -225,14 +222,14 @@ class Timecode
      */
     public function calculateFrameCountWithDropFrame() : float
     {
-        $drop = floor($this->frameCount / self::DROP_FRAME_CONCEPT);
-        $mod = $this->frameCount % self::DROP_FRAME_CONCEPT;
+        $drop = floor($this->frameCount / 17982);
+        $mod = $this->frameCount % 17982;
 
         if ($mod < 2) {
             $mod += 2;
         }
 
-        return $this->frameCount + ((18 * $drop) + (2 * (floor(($mod - 2) / self::DROP_FRAME_CONCEPT))));
+        return $this->frameCount + ((18 * $drop) + (2 * (floor(($mod - 2) / 1798))));
     }
 
     /**
@@ -284,9 +281,9 @@ class Timecode
 
     /**
      * @param int $hours
-     * @return void
+     * @return self
      */
-    public function setHours(int $hours) : void
+    public function setHours(int $hours) : self
     {
         if ($hours < 0 || $hours > 23) {
             throw new \InvalidArgumentException('The hours must be between 0 and 23');
@@ -294,6 +291,8 @@ class Timecode
 
         $this->hours = $hours;
         $this->updateFramecount();
+
+        return $this;
     }
 
     /**
@@ -306,9 +305,9 @@ class Timecode
 
     /**
      * @param int $minutes
-     * @return void
+     * @return self
      */
-    public function setMinutes(int $minutes) : void
+    public function setMinutes(int $minutes) : self
     {
         if ($minutes < 0 || $minutes > 59) {
             throw new \InvalidArgumentException('The minutes must be between 0 and 59');
@@ -316,6 +315,8 @@ class Timecode
 
         $this->minutes = $minutes;
         $this->updateFramecount();
+
+        return $this;
     }
 
     /**
@@ -328,9 +329,9 @@ class Timecode
 
     /**
      * @param int $seconds
-     * @return void
+     * @return self
      */
-    public function setSeconds(int $seconds) : void
+    public function setSeconds(int $seconds) : self
     {
         if ($seconds < 0 || $seconds > 59) {
             throw new \InvalidArgumentException('The seconds must be between 0 and 59');
@@ -338,6 +339,8 @@ class Timecode
 
         $this->seconds = $seconds;
         $this->updateFramecount();
+
+        return $this;
     }
 
     /**
@@ -346,6 +349,30 @@ class Timecode
     public function getFrames() : int
     {
         return $this->frames;
+    }
+
+    /**
+     * @param int $frames
+     * @return self
+     */
+    public function setFrames(int $frames) : self
+    {
+        if ($frames < 0 || $frames >= ceil($this->frameRate)) {
+            throw new \InvalidArgumentException('The frames must be between 0 and the framerate');
+        }
+
+        if ($this->dropFrame
+            && $this->minutes % 10 !== 0
+            && $this->seconds === 0
+            && $frames < 2
+        ) {
+            throw new \InvalidArgumentException('The frames must not be less than 2 when dropframe and minutes multiple by 10');
+        }
+
+        $this->frames = $frames;
+        $this->updateFramecount();
+
+        return $this;
     }
 
     /**
@@ -403,7 +430,7 @@ class Timecode
      *
      * @return void
      */
-    private function updateFramecount() : void
+    private function updateFramecount()
     {
         $this->frameCount = self::frameCountFromTimecode($this->toString(), $this->frameRate, $this->dropFrame);
     }

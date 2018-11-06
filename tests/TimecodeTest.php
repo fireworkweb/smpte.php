@@ -76,6 +76,15 @@ class TimecodeTest extends TestCase
     }
 
     /**
+     * @dataProvider toStringProvider
+     */
+    public function testToString($expected, $time, $frameRate, $dropFrame)
+    {
+        $this->assertEquals($expected, (string) new Timecode($time, $frameRate, $dropFrame));
+        $this->assertEquals($expected, (new Timecode($time, $frameRate, $dropFrame))->toString());
+    }
+
+    /**
      * @dataProvider fromSecondsProvider
      */
     public function testFromSeconds($expected, $time, $frameRate)
@@ -84,10 +93,114 @@ class TimecodeTest extends TestCase
     }
 
     /**
+     * @dataProvider invalidFromSecondsProvider
+     * @expectedException InvalidArgumentException
+     */
+    public function testInvalidFromSeconds($time, $frameRate, $dropFrame)
+    {
+        Timecode::fromSeconds($time, $frameRate, $dropFrame);
+    }
+
+    /**
      * @dataProvider durationInSecondsProvider
      */
-    public function testeDurationInSeconds($expected, $time, $frameRate, $dropFrame)
+    public function testDurationInSeconds($expected, $time, $frameRate, $dropFrame)
     {
         $this->assertEquals($expected, (new Timecode($time, $frameRate, $dropFrame))->durationInSeconds());
+    }
+
+    /**
+     * @dataProvider addProvider
+     */
+    public function testAdd($expected, $time, $add)
+    {
+        $this->assertEquals($expected, (string) (new Timecode($time))->add($add));
+    }
+
+    /**
+     * @dataProvider subtractProvider
+     */
+    public function testSubtract($expected, $time, $subtract)
+    {
+        $this->assertEquals($expected, (string) (new Timecode($time))->subtract($subtract));
+    }
+
+    /**
+     * @dataProvider getHoursProvider
+     */
+    public function testGetHours($hours)
+    {
+        $this->assertEquals($hours, (new Timecode())->setHours($hours)->getHours());
+    }
+
+    /**
+     * @dataProvider invalidGetHoursProvider
+     * @expectedException InvalidArgumentException
+     */
+    public function testInvalidGetHours($hours)
+    {
+        (new Timecode())->setHours($hours);
+    }
+
+    /**
+     * @dataProvider getMinutesSecondsProvider
+     */
+    public function testGetMinutes($minutes)
+    {
+        $this->assertEquals($minutes, (new Timecode())->setMinutes($minutes)->getMinutes());
+    }
+
+    /**
+     * @dataProvider invalidGetMinutesSecondsProvider
+     * @expectedException InvalidArgumentException
+     */
+    public function testInvalidGetMinutes($minutes)
+    {
+        (new Timecode())->setMinutes($minutes);
+    }
+
+    /**
+     * @dataProvider getMinutesSecondsProvider
+     */
+    public function testGetSeconds($seconds)
+    {
+        $this->assertEquals($seconds, (new Timecode())->setSeconds($seconds)->getSeconds());
+    }
+
+    /**
+     * @dataProvider invalidGetMinutesSecondsProvider
+     * @expectedException InvalidArgumentException
+     */
+    public function testInvalidGetSeconds($seconds)
+    {
+        (new Timecode())->setSeconds($seconds);
+    }
+
+    /**
+     * @dataProvider getFramesProvider
+     */
+    public function testGetFrames($frames, $framerate, $dropFrame)
+    {
+        $this->assertEquals($frames, (new Timecode(0, $framerate, $dropFrame))->setFrames($frames)->getFrames());
+    }
+
+    /**
+     * @dataProvider invalidGetFramesProvider
+     * @expectedException InvalidArgumentException
+     */
+    public function testInvalidGetFrames($frames, $framerate, $dropFrame, $minutes = 0)
+    {
+        (new Timecode(0, $framerate, $dropFrame))
+            ->setMinutes($minutes)
+            ->setFrames($frames);
+    }
+
+    /**
+     * @dataProvider invalidFrameCountProvider
+     * @expectedException InvalidArgumentException
+     */
+    public function testInvalidFrameCount($frameCount)
+    {
+        (new Timecode())->setFrameCount($frameCount);
     }
 }

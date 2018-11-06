@@ -31,6 +31,32 @@ trait TimecodeProvider
             'test with boolean' => [true, 25, false],
         ];
     }
+    public function toStringProvider()
+    {
+        return [
+            // should properly return string
+            ['00:00:00:00', 0, 23.976, false],
+            ['00:00:00:00', 0, 24, false],
+            ['00:00:00:00', 0, 25, false],
+            ['00:00:00:00', 0, 29.97, false],
+            ['00:00:00;00', 0, 29.97, true],
+            ['00:00:00:00', 0, 30, false],
+            // should properly return string
+            ['00:00:20:20', 500, 23.976, false],
+            ['00:00:20:20', 500, 24, false],
+            ['00:00:20:00', 500, 25, false],
+            ['00:00:16:20', 500, 29.97, false],
+            ['00:00:16;20', 500, 29.97, true],
+            ['00:00:16:20', 500, 29.97, false],
+            // should properly return string
+            ['00:06:56:16', 10000, 23.976, false],
+            ['00:06:56:16', 10000, 24, false],
+            ['00:06:40:00', 10000, 25, false],
+            ['00:05:33:10', 10000, 29.97, false],
+            ['00:05:33;20', 10000, 29.97, true],
+            ['00:05:33:10', 10000, 30, false],
+        ];
+    }
 
     public function fromSecondsProvider()
     {
@@ -74,6 +100,31 @@ trait TimecodeProvider
         ];
     }
 
+    public function invalidFromSecondsProvider()
+    {
+        return [
+            // should break with invalid seconds
+            ['', 23.976, false],
+            [false, 24, false],
+            [new \DateTime(), 25, false],
+            [null, 29.97, false],
+            ['', 29.97, true],
+            ['', 30, false],
+            // should break with invalid framerate
+            [1, 22, false],
+            [1, 26, false],
+            [1, 0, false],
+            [1, 50, false],
+            [1, 100, false],
+            [1, 10000, false],
+            // should break with invalid dropFrame
+            [1, 23.976, true],
+            [1, 24, true],
+            [1, 25, true],
+            [1, 30, true],
+        ];
+    }
+
     public function frameRateSupportedProvider()
     {
         return [
@@ -109,6 +160,125 @@ trait TimecodeProvider
             [3253, '00:54:13;25', 29.97, true],
             [210, 6323, 30, false],
             [10813, '03:00:13:27', 30, false],
+        ];
+    }
+
+    public function addProvider()
+    {
+        return [
+            ['00:00:00:00', '00:00:00:00', '00:00:00:00'],
+            ['00:00:00:10', '00:00:00:01', '00:00:00:09'],
+            ['00:00:02:00', '00:00:01:00', '00:00:01:00'],
+            ['00:00:10:00', '00:00:05:00', '00:00:05:00'],
+            ['00:01:00:01', '00:01:00:00', '00:00:00:01'],
+            ['01:01:01:01', '00:01:00:01', '01:00:01:00'],
+        ];
+    }
+
+    public function subtractProvider()
+    {
+        return [
+            ['00:00:00:00', '00:00:00:00', '00:00:00:00'],
+            ['00:00:00:08', '00:00:00:09', '00:00:00:01'],
+            ['00:00:00:00', '00:00:01:00', '00:00:01:00'],
+            ['00:00:01:00', '00:00:02:00', '00:00:01:00'],
+            ['00:00:00:00', '00:00:05:00', '00:00:05:00'],
+            ['00:00:10:00', '00:00:15:00', '00:00:05:00'],
+            ['00:00:59:23', '00:01:00:00', '00:00:00:01'],
+        ];
+    }
+
+    public function getHoursProvider()
+    {
+        return [
+            [1],
+            [3],
+            [6],
+            [9],
+            [10],
+            [19],
+        ];
+    }
+
+    public function invalidGetHoursProvider()
+    {
+        return [
+            [-1],
+            [-10],
+            [25],
+            [30],
+            [1000],
+        ];
+    }
+
+    public function getMinutesSecondsProvider()
+    {
+        return [
+            [1],
+            [3],
+            [6],
+            [9],
+            [10],
+            [19],
+            [30],
+            [55],
+        ];
+    }
+
+    public function invalidGetMinutesSecondsProvider()
+    {
+        return [
+            [-1],
+            [-10],
+            [65],
+            [70],
+            [1000],
+        ];
+    }
+
+
+    public function getFramesProvider()
+    {
+        return [
+            [1, 23.976, false],
+            [23, 23.976, false],
+            [1, 24, false],
+            [23, 24, false],
+            [1, 25, false],
+            [24, 25, false],
+            [1, 29.97, false],
+            [29, 29.97, false],
+            [1, 29.97, true],
+            [29, 29.97, false],
+            [1, 30, false],
+            [29, 30, false],
+        ];
+    }
+
+    // @TODO: add tests for 29.97 and dropframe
+    public function invalidGetFramesProvider()
+    {
+        return [
+            [-1, 23.976, false],
+            [25, 23.976, false],
+            [-1, 24, false],
+            [25, 24, false],
+            [-1, 25, false],
+            [26, 25, false],
+            [-1, 29.97, false],
+            [30, 29.97, false],
+            [-1, 30, false],
+            [30, 30, false],
+        ];
+    }
+
+    public function invalidFrameCountProvider()
+    {
+        return [
+            [-1],
+            [-10],
+            [-20],
+            [-25],
         ];
     }
 }
