@@ -7,7 +7,7 @@ trait TimecodeProvider
     public function defaultFrameRateProvider()
     {
         return [
-            [23.976],
+            [23.97],
             [25],
             [29.97],
             [30],
@@ -35,21 +35,21 @@ trait TimecodeProvider
     {
         return [
             // should properly return string
-            ['00:00:00:00', 0, 23.976, false],
+            ['00:00:00:00', 0, 23.97, false],
             ['00:00:00:00', 0, 24, false],
             ['00:00:00:00', 0, 25, false],
             ['00:00:00:00', 0, 29.97, false],
             ['00:00:00;00', 0, 29.97, true],
             ['00:00:00:00', 0, 30, false],
             // should properly return string
-            ['00:00:20:20', 500, 23.976, false],
+            ['00:00:20:20', 500, 23.97, false],
             ['00:00:20:20', 500, 24, false],
             ['00:00:20:00', 500, 25, false],
             ['00:00:16:20', 500, 29.97, false],
             ['00:00:16;20', 500, 29.97, true],
             ['00:00:16:20', 500, 29.97, false],
             // should properly return string
-            ['00:06:56:16', 10000, 23.976, false],
+            ['00:06:56:16', 10000, 23.97, false],
             ['00:06:56:16', 10000, 24, false],
             ['00:06:40:00', 10000, 25, false],
             ['00:05:33:10', 10000, 29.97, false],
@@ -61,13 +61,13 @@ trait TimecodeProvider
     public function fromSecondsProvider()
     {
         return [
-            // should properly return frame count (23.976 fps)
-            [0, 0.041, 23.976],
-            [1, 0.042, 23.976],
-            [1, 0.083, 23.976],
-            [2, 0.084, 23.976],
-            [7200, 300.301, 23.976],
-            [14400, 600.601, 23.976],
+            // should properly return frame count (23.97 fps)
+            [0, 0.041, 23.97],
+            [1, 0.042, 23.97],
+            [1, 0.083, 23.97],
+            [2, 0.084, 23.97],
+            [7200, 300.301, 23.97],
+            [14400, 600.601, 23.97],
             // should properly return frame count (24 fps)
             [0, 0, 24],
             [0, 0.021, 24],
@@ -104,7 +104,7 @@ trait TimecodeProvider
     {
         return [
             // should break with invalid seconds
-            ['', 23.976, false],
+            ['', 23.97, false],
             [false, 24, false],
             [new \DateTime(), 25, false],
             [null, 29.97, false],
@@ -118,7 +118,7 @@ trait TimecodeProvider
             [1, 100, false],
             [1, 10000, false],
             // should break with invalid dropFrame
-            [1, 23.976, true],
+            [1, 23.97, true],
             [1, 24, true],
             [1, 25, true],
             [1, 30, true],
@@ -128,7 +128,7 @@ trait TimecodeProvider
     public function frameRateSupportedProvider()
     {
         return [
-            [23.976, false],
+            [23.97, false],
             [24, false],
             [25, false],
             [29.97, false],
@@ -150,8 +150,8 @@ trait TimecodeProvider
     public function durationInSecondsProvider()
     {
         return [
-            [518, 12443, 23.976, false],
-            [2597, '00:43:14:12', 23.976, false],
+            [518, 12443, 23.97, false],
+            [2597, '00:43:14:12', 23.97, false],
             [350, 8400, 24, false],
             [6190, '01:43:10:00', 24, false],
             [23, 576, 25, false],
@@ -240,8 +240,8 @@ trait TimecodeProvider
     public function getFramesProvider()
     {
         return [
-            [1, 23.976, false],
-            [23, 23.976, false],
+            [1, 23.97, false],
+            [23, 23.97, false],
             [1, 24, false],
             [23, 24, false],
             [1, 25, false],
@@ -259,8 +259,8 @@ trait TimecodeProvider
     public function invalidGetFramesProvider()
     {
         return [
-            [-1, 23.976, false],
-            [25, 23.976, false],
+            [-1, 23.97, false],
+            [25, 23.97, false],
             [-1, 24, false],
             [25, 24, false],
             [-1, 25, false],

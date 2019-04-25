@@ -11,7 +11,7 @@ class Validations
      * @var array
      */
     const SUPPORTED_FRAMERATES = [
-        23.976,
+        23.97,
         24,
         25,
         29.97,
