@@ -66,8 +66,8 @@ trait TimecodeProvider
             [1, 0.042, 23.97],
             [1, 0.083, 23.97],
             [2, 0.084, 23.97],
-            [7200, 300.301, 23.97],
-            [14400, 600.601, 23.97],
+            [7200, 300.376, 23.97],
+            [14400, 600.751, 23.97],
             // should properly return frame count (24 fps)
             [0, 0, 24],
             [0, 0.021, 24],
@@ -150,7 +150,7 @@ trait TimecodeProvider
     public function durationInSecondsProvider()
     {
         return [
-            [518, 12443, 23.97, false],
+            [519, 12443, 23.97, false],
             [2597, '00:43:14:12', 23.97, false],
             [350, 8400, 24, false],
             [6190, '01:43:10:00', 24, false],
