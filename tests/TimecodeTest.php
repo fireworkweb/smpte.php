@@ -33,7 +33,7 @@ class TimecodeTest extends TestCase
 
         Timecode::setDefaultDropFrame(true);
 
-        $customTimecode = new Timecode(420, 29.97);
+        $customTimecode = new Timecode(420, 30000 / 1001);
 
         $this->assertEquals(false, $timecode->getDropFrame());
         $this->assertEquals(true, $customTimecode->getDropFrame());
