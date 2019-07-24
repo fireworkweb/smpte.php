@@ -5,6 +5,7 @@ namespace FireworkWeb\Tests;
 use PHPUnit\Framework\TestCase;
 use FireworkWeb\SMPTE\Timecode;
 use FireworkWeb\SMPTE\Validations;
+use FireworkWeb\SMPTE\FrameRate;
 
 class TimecodeTest extends TestCase
 {
@@ -33,7 +34,7 @@ class TimecodeTest extends TestCase
 
         Timecode::setDefaultDropFrame(true);
 
-        $customTimecode = new Timecode(420, 30000 / 1001);
+        $customTimecode = new Timecode(420, FrameRate::FR_29_97);
 
         $this->assertEquals(false, $timecode->getDropFrame());
         $this->assertEquals(true, $customTimecode->getDropFrame());
