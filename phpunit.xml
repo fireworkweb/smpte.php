@@ -4,6 +4,7 @@
     <testsuites>
         <testsuite name="Main Test">
             <file>./tests/TimecodeTest.php</file>
+            <file>./tests/FrameRateTest.php</file>
         </testsuite>
     </testsuites>
 

@@ -11,11 +11,14 @@ class Validations
      * @var array
      */
     const SUPPORTED_FRAMERATES = [
-        23.97,
+        24000 / 1001,
         24,
         25,
-        29.97,
+        30000 / 1001,
         30,
+        50,
+        60000 / 1001,
+        60,
     ];
 
      /**
@@ -117,7 +120,7 @@ class Validations
      */
     public static function isFrameRateSupported(float $frameRate, bool $dropFrame) : bool
     {
-        if ($frameRate !== 29.97 && $dropFrame) {
+        if ($frameRate !== 30000/1001 && $dropFrame) {
             throw new \InvalidArgumentException('Only 29.97 frame rate has drop frame support.');
         }
 

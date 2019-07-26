@@ -45,7 +45,7 @@ class Timecode
     /**
      * @var float
      */
-    private static $defaultFrameRate = 24.0;
+    private static $defaultFrameRate = FrameRate::FR_24;
 
     /**
      * @var bool
