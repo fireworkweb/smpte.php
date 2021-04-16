@@ -93,7 +93,7 @@ class Validations
         }
 
         // hh:mm:ss:ff
-        $timeCodeFormat = '/^(?:[0-1][0-9]|2[0-3])(:|;)(?:[0-5][0-9])\1(?:[0-5][0-9])(:|;)(?:[0-2][0-9])$/';
+        $timeCodeFormat = '/^(?:[0-1][0-9]|2[0-3])(:|;)(?:[0-5][0-9])\1(?:[0-5][0-9])(:|;)(?:[0-5][0-9])$/';
         if (! preg_match($timeCodeFormat, $value)) {
             return false;
         }
