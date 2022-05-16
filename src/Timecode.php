@@ -239,7 +239,7 @@ class Timecode
      */
     public function durationInSeconds() : int
     {
-        return $this->frameCount / $this->frameRate;
+        return (int) ($this->frameCount / $this->frameRate);
     }
 
     /**
