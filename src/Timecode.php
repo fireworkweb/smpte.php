@@ -233,13 +233,58 @@ class Timecode
     }
 
     /**
-     * Get total of seconds based on frame count
+     * Get total duration in seconds based on frame count, rounded down to the nearest second
      *
      * @return int
      */
     public function durationInSeconds() : int
     {
+        return (int) ($this->frameCount / $this->frameRate);
+    }
+
+    /**
+     * Get total duration in seconds based on frame count, rounded to the nearest second
+     *
+     * @return int
+     */
+    public function durationInSecondsRounded() : int
+    {
         return (int) round($this->frameCount / $this->frameRate);
+    }
+
+    /**
+     * Get total duration in seconds based on frame count, rounded to the nearest second
+     * Ensures a minimum of 1 second if frames are present
+     *
+     * @return int
+     */
+    public function durationInSecondsRoundedMinOne() : int
+    {
+        if ($this->frameCount === 0) {
+            return 0;
+        }
+
+        return max(1, (int) round($this->frameCount / $this->frameRate));
+    }
+
+    /**
+     * Get total duration in seconds based on frame count, rounded up to the nearest second
+     *
+     * @return int
+     */
+    public function durationInSecondsRoundedUp() : int
+    {
+        return (int) ceil($this->frameCount / $this->frameRate);
+    }
+
+    /**
+     * Get total duration in seconds with fractional precision based on frame count
+     *
+     * @return float
+     */
+    public function durationInSecondsWithFractions() : float
+    {
+        return $this->frameCount / $this->frameRate;
     }
 
     /**
